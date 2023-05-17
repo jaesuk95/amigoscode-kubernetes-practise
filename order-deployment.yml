@@ -31,5 +31,7 @@ spec:
   type: ClusterIP
   selector:
     app: order
- 
+  ports:
+  - port: 80
+    targetPort: 8081
 
