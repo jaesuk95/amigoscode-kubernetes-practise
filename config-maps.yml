@@ -13,7 +13,7 @@ kind: ConfigMap
 metadata:
   name: nginx-config
 data:
-  default.conf: |
+  nginx.conf: |
     server {
         listen       80;
         server_name  localhost;
@@ -37,4 +37,50 @@ data:
         }
     }
 
-
+--- 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-map
+spec:
+  selector:
+    matchLabels:
+      app: config-map
+  template:
+    metadata:
+      labels:
+        app: config-map
+    spec:
+      containers:
+      - name: config-map-env
+        image: busybox
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        command: 
+          - "/bin/sh"
+          - "-c"
+        args:
+          - "env && sleep 3600"
+        env:
+          - name: APP_VERSION
+            valueFrom:
+              configMapKeyRef:
+                name: app-properties
+                key: app-version
+          - name: APP_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: app-properties
+                key: app-name
+          - name: APP_TEAM
+            valueFrom:
+              configMapKeyRef:
+                name: app-properties
+                key: team
+          - name: NGINX_CONF
+            valueFrom:
+              configMapKeyRef:
+                name: nginx-config
+                key: nginx.conf
